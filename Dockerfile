@@ -1,11 +1,14 @@
 ARG ARCH=
-FROM ${ARCH}erseco/alpine-php-webserver:3.20
+#FROM ${ARCH}erseco/alpine-php-webserver:3.20
+
+# For php84
+FROM ${ARCH}erseco/alpine-php-webserver:3.23 
 
 LABEL maintainer="Ernesto Serrano <info@ernesto.es>"
 
 USER root
-RUN apk add --no-cache composer patch php83-posix php83-xmlwriter php83-pecl-redis \
-    php83-ldap php83-pecl-igbinary php83-exif \
+RUN apk add --no-cache composer patch php84-posix php84-xmlwriter php84-pecl-redis \
+    php84-ldap php84-pecl-igbinary php84-exif \
     # Remove alpine cache
     && rm -rf /var/cache/apk/*
 
