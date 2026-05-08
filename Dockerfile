@@ -15,10 +15,8 @@ RUN apk add --no-cache gnu-libiconv=1.15-r3 --repository http://dl-cdn.alpinelin
     && rm -rf /var/cache/apk/*
 ENV LD_PRELOAD=/usr/lib/preloadable_libiconv.so
 
-USER nobody
-
 # Moodle version configuration
-ARG MOODLE_VERSION=main
+ARG MOODLE_BRANCH=MOODLE_502_STABLE
 
 # Set default environment variables
 ENV LANG=en_US.UTF-8 \
@@ -59,29 +57,23 @@ ENV LANG=en_US.UTF-8 \
     max_input_vars=5000 \
     memory_limit=256M
 
-# To use a specific Moodle version, set MOODLE_VERSION to git release tag.
-# You can find the list of available tags at:
-# https://api.github.com/repos/moodle/moodle/tags
-#
-# Example:
-# MOODLE_VERSION=v4.5.3
-#
-# Download and extract Moodle
-RUN if [ "$MOODLE_VERSION" = "main" ]; then \
-      MOODLE_URL="https://github.com/moodle/moodle/archive/main.tar.gz"; \
-    else \
-      MOODLE_URL="https://github.com/moodle/moodle/tarball/refs/tags/${MOODLE_VERSION}"; \
-    fi && \
-    echo "Downloading Moodle from: $MOODLE_URL" && \
-    curl -L "$MOODLE_URL" | tar xz --strip-components=1 -C /var/www/html/
+# Install git temporarily, clone Moodle, then remove git
+RUN set -eux; \
+    apk add --no-cache --virtual .build-deps git && \
+    rm -rf /var/www/html/* && \
+    git clone \
+        --depth=1 \
+        --branch "${MOODLE_BRANCH}" \
+        https://github.com/moodle/moodle.git \
+        /var/www/html && \
+    rm -rf /var/www/html/.git && \
+    apk del .build-deps
 
-
-USER root
 COPY --chown=nobody rootfs/ /
 
 USER nobody
 
-ENV MOOSH_URL=https://github.com/tmuras/moosh/archive/master.tar.gz
-RUN curl -L "$MOOSH_URL" | tar xz --strip-components=1 -C /opt/moosh/
+#ENV MOOSH_URL=https://github.com/tmuras/moosh/archive/master.tar.gz
+#RUN curl -L "$MOOSH_URL" | tar xz --strip-components=1 -C /opt/moosh/
 
-RUN composer install --no-interaction --no-cache --working-dir=/opt/moosh
+RUN composer install --no-interaction --no-cache --working-dir=/var/www/html/

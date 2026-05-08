@@ -27,7 +27,7 @@ services:
         # Example:
         # MOODLE_VERSION: v4.5.3
         # MOODLE_VERSION: v5.0.1
-        MOODLE_VERSION: main
+        MOODLE_BRANCH: MOODLE_502_STABLE
     restart: unless-stopped
     environment:
       LANG: en_US.UTF-8
