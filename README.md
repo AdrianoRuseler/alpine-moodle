@@ -17,19 +17,6 @@ The documentation site covers quick start, `docker-compose` recipes, reverse pro
 
 ## Quick start
 
-### Single container (SQLite — dev/demo only)
-
-```bash
-docker run -d \
-  -p 80:8080 \
-  -e MOODLE_DATABASE_TYPE=sqlite3 \
-  -e MOODLE_PASSWORD=ChangeMe123! \
-  -v moodledata:/var/www/moodledata \
-  erseco/alpine-moodle
-```
-
-Open <http://localhost> and log in with `moodleuser` / `ChangeMe123!`.
-
 ### With PostgreSQL (recommended)
 
 ```yaml

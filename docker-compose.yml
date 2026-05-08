@@ -16,7 +16,7 @@ services:
       - postgres:/var/lib/postgresql
 
   moodle:
-    image: erseco/alpine-moodle
+    #image: erseco/alpine-moodle
     build:
       context: .
       args:
