@@ -20,6 +20,7 @@ ENV LD_PRELOAD=/usr/lib/preloadable_libiconv.so
 
 # Moodle version configuration
 ARG MOODLE_BRANCH=MOODLE_502_STABLE
+ARG MOODLE_PGLS=https://github.com/AdrianoRuseler/moodle502-plugins.git
 
 # Set default environment variables
 ENV LANG=en_US.UTF-8 \
@@ -58,7 +59,18 @@ ENV LANG=en_US.UTF-8 \
     post_max_size=50M \
     upload_max_filesize=50M \
     max_input_vars=5000 \
-    memory_limit=256M
+    memory_limit=256M \
+    opcache_enable=1 \
+    opcache_enable_cli=1 \
+    opcache_memory_consumption=512 \
+    opcache_interned_strings_buffer=64 \
+    opcache_max_accelerated_files=60000 \
+    opcache_validate_timestamps=1 \
+    opcache_revalidate_freq=60 \
+    opcache_save_comments=1 \
+    opcache_enable_file_override=1 \
+    opcache_jit=tracing \
+    opcache_jit_buffer_size=128M
 
 RUN set -eux; \
     # 1. Install Git temporarily
@@ -76,7 +88,7 @@ RUN set -eux; \
     mkdir -p /tmp/moodle-source; \
     \
     # 4. Clone the custom plugin repository
-    git clone --depth=1 --recursive https://github.com/AdrianoRuseler/moodle502-plugins.git /tmp/moodle-source; \
+    git clone --depth=1 --recursive ${MOODLE_PGLS} /tmp/moodle-source; \
     \
     # 5. Correctly merge the contents directly into Moodle root
     cp -rf /tmp/moodle-source/moodle/public/* /var/www/html/public/; \

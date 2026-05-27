@@ -20,14 +20,10 @@ services:
     build:
       context: .
       args:
-        # To use a specific Moodle version, set MOODLE_VERSION to git release tag.
-        # You can find the list of available tags at:
-        # https://api.github.com/repos/moodle/moodle/tags
-        #
-        # Example:
-        # MOODLE_VERSION: v4.5.3
-        # MOODLE_VERSION: v5.0.1
+        # 1. Set the Moodle branch to build (default: MOODLE_502_STABLE)
+        # 2. Set the custom plugin repository URL (default: https://github.com/AdrianoRuseler/moodle502-plugins.git)
         MOODLE_BRANCH: MOODLE_502_STABLE
+        MOODLE_PGLS: https://github.com/AdrianoRuseler/moodle502-plugins.git
     restart: unless-stopped
     environment:
       LANG: en_US.UTF-8
@@ -54,28 +50,6 @@ services:
         echo 'This is a pre-configure command'
       POST_CONFIGURE_COMMANDS: |
         echo 'This is a post-configure command'
-      # 1. Turn it ON (This overrides custom.ini)
-      opcache_enable: "1"
-      opcache_enable_cli: "1"
-      
-      # 2. Scale up memory & files for Moodle + Plugins
-      opcache_memory_consumption: "512"
-      opcache_interned_strings_buffer: "64"
-      opcache_max_accelerated_files: "60000"
-      
-      # 3. Code change validation behavior
-      # Set to "1" if you're actively developing code. 
-      # Set to "0" (as your guide suggests) for true production speed.
-      opcache_validate_timestamps: "1"
-      opcache_revalidate_freq: "60"
-      
-      # 4. Mandatory settings for Moodle
-      opcache_save_comments: "1"
-      opcache_enable_file_override: "1"
-      
-      # 5. PHP 8.4 JIT Compiler Settings
-      opcache_jit: "tracing"
-      opcache_jit_buffer_size: "128M"
     ports:
       - 80:8080
     volumes:
