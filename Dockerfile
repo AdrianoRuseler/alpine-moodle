@@ -93,7 +93,7 @@ RUN set -eux; \
     \
     # 5. Correctly merge the contents directly into Moodle root
     cp -rf /tmp/moodle-source/public/* /var/www/html/public/; \
-    \
+    # cp -rf /tmp/moodle-source/* /var/www/html/; \
     # 6. Housekeeping: Wipe Git histories and temporary files to shrink image size
     rm -rf /var/www/html/.git; \
     rm -rf /tmp/moodle-source; \
@@ -106,4 +106,4 @@ USER nobody
 #ENV MOOSH_URL=https://github.com/tmuras/moosh/archive/master.tar.gz
 #RUN curl -L "$MOOSH_URL" | tar xz --strip-components=1 -C /opt/moosh/
 
-RUN composer install --no-interaction --no-cache --working-dir=/var/www/html/
+#RUN composer install --no-interaction --no-cache --working-dir=/var/www/html/

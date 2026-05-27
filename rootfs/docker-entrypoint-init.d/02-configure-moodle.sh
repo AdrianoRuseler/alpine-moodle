@@ -27,34 +27,43 @@ fi
 # MOODLE_PUBLIC_DIR is set to true if that directory exists, otherwise it is false (for older versions).
 MOODLE_PUBLIC_DIR=false
 
+# Detect Moodle >=5.1
+if [ -d /var/www/html/public ]; then
+    mdlver=$(grep "\$release" /var/www/html/public/version.php | cut -d\' -f 2)
+else
+    mdlver=$(grep "\$release" /var/www/html/version.php | cut -d\' -f 2)
+fi
+export MOODLE_SITENAME="Moodle $mdlver"
+echo "Updating site name to ${MOODLE_SITENAME} ..."
+
 # Function to update or add a configuration value
 update_or_add_config_value() {
     local key="$1"  # The configuration key (e.g., $CFG->wwwroot)
     local value="$2"  # The new value for the configuration key
-
+    
     if [ -z "$value" ]; then
         # If value is empty, remove the line with the key if it exists
         sed -i "/$key/d" "$config_file"
         return
     fi
-
+    
     case "$value" in
         true|false|\[*)
             quote=''
-            ;;
+        ;;
         *)
             quote="'"
-            ;;
+        ;;
     esac
-
+    
     if grep -q "$key" "$config_file"; then
         # If the key exists, replace its value
         sed -i "s|\($key\s*=\s*\)[^;]*;|\1$quote$value$quote;|g" "$config_file"
-
+        
     else
         # If the key does not exist, add it before "require_once"
         sed -i "/require_once/i $key\t= $quote$value$quote;" "$config_file"
-
+        
     fi
 }
 
@@ -62,7 +71,7 @@ update_or_add_config_value() {
 check_db_availability() {
     local db_host="$1"
     local db_port="$2"
-
+    
     echo "Waiting for $db_host:$db_port to be ready..."
     while ! nc -w 1 "$db_host" "$db_port" > /dev/null 2>&1; do
         # Show some progress
@@ -75,21 +84,21 @@ check_db_availability() {
 configure_database_mode() {
     case "$DB_TYPE" in
         mysqli|mariadb|pgsql)
-            ;;
+        ;;
         sqlite3)
             echo "WARNING: SQLite mode is for development/demo/testing only and is not supported for production use."
-
+            
             DB_SQLITE_PATH="${DB_SQLITE_PATH:-/var/www/moodledata/sqlite/moodle.sqlite}"
-
+            
             case "$DB_SQLITE_PATH" in
                 /var/www/moodledata/*)
-                    ;;
+                ;;
                 *)
                     echo "ERROR: DB_SQLITE_PATH must stay inside /var/www/moodledata for safety." >&2
                     exit 1
-                    ;;
+                ;;
             esac
-
+            
             sqlite_dir="$(dirname "$DB_SQLITE_PATH")"
             mkdir -p "$sqlite_dir" || {
                 echo "ERROR: Unable to create SQLite directory '$sqlite_dir'." >&2
@@ -98,13 +107,13 @@ configure_database_mode() {
             sqlite_dir="$(readlink -f "$sqlite_dir")"
             case "$sqlite_dir" in
                 /var/www/moodledata|/var/www/moodledata/*)
-                    ;;
+                ;;
                 *)
                     echo "ERROR: DB_SQLITE_PATH must resolve inside /var/www/moodledata." >&2
                     exit 1
-                    ;;
+                ;;
             esac
-
+            
             # Moodle's CLI/config stores the SQLite file path in the dbname setting.
             DB_SQLITE_PATH="$sqlite_dir/$(basename "$DB_SQLITE_PATH")"
             DB_NAME="$DB_SQLITE_PATH"
@@ -118,26 +127,26 @@ configure_database_mode() {
             DB_PASS_REPLICA=''
             DB_FETCHBUFFERSIZE=''
             DB_DBHANDLEOPTIONS=false
-
+            
             chmod 700 "$sqlite_dir"
             if [ ! -e "$DB_NAME" ]; then
                 touch "$DB_NAME"
             fi
             chmod 600 "$DB_NAME"
-
+            
             echo "Using SQLite database file at $DB_NAME"
-            ;;
+        ;;
         *)
             echo "ERROR: Unsupported database type '$DB_TYPE'. Supported values: mysqli, mariadb, pgsql, sqlite3." >&2
             exit 1
-            ;;
+        ;;
     esac
 }
 
 # Function to generate config.php file
 generate_config_file() {
     echo "Generating config.php file..."
-
+    
     # Moodle's install.php does not recognise sqlite3 as a valid --dbtype,
     # so we write config.php by hand when using SQLite and then let
     # install_database.php create the schema afterwards.
@@ -177,28 +186,28 @@ CFGEOF
         echo "config.php generated for SQLite."
         return
     fi
-
+    
     set -- \
-        --lang=$MOODLE_LANGUAGE \
-        --wwwroot=$SITE_URL \
-        --dataroot=/var/www/moodledata/ \
-        --dbtype=$DB_TYPE \
-        --dbname=$DB_NAME \
-        --prefix=$DB_PREFIX \
-        --dbhost=$DB_HOST \
-        --dbuser=$DB_USER \
-        --dbpass=$DB_PASS \
-        --dbport=$DB_PORT \
-        --fullname=$MOODLE_SITENAME \
-        --shortname=moodle \
-        --adminuser=$MOODLE_USERNAME \
-        --adminpass=$MOODLE_PASSWORD \
-        --adminemail=$MOODLE_EMAIL \
-        --non-interactive \
-        --agree-license \
-        --skip-database \
-        --allow-unstable
-
+    --lang=$MOODLE_LANGUAGE \
+    --wwwroot=$SITE_URL \
+    --dataroot=/var/www/moodledata/ \
+    --dbtype=$DB_TYPE \
+    --dbname=$DB_NAME \
+    --prefix=$DB_PREFIX \
+    --dbhost=$DB_HOST \
+    --dbuser=$DB_USER \
+    --dbpass=$DB_PASS \
+    --dbport=$DB_PORT \
+    --fullname="$MOODLE_SITENAME" \
+    --shortname="$MOODLE_SITENAME" \
+    --adminuser=$MOODLE_USERNAME \
+    --adminpass=$MOODLE_PASSWORD \
+    --adminemail=$MOODLE_EMAIL \
+    --non-interactive \
+    --agree-license \
+    --skip-database \
+    --allow-unstable
+    
     ENV_VAR='var' php -d max_input_vars=10000 /var/www/html/admin/cli/install.php "$@"
 }
 
@@ -206,13 +215,13 @@ CFGEOF
 install_database() {
     echo "Installing database..."
     php -d max_input_vars=10000 /var/www/html/admin/cli/install_database.php \
-        --lang=$MOODLE_LANGUAGE \
-        --adminuser=$MOODLE_USERNAME \
-        --adminpass=$MOODLE_PASSWORD \
-        --adminemail=$MOODLE_EMAIL \
-        --fullname=$MOODLE_SITENAME \
-        --shortname=moodle \
-        --agree-license
+    --lang=$MOODLE_LANGUAGE \
+    --adminuser=$MOODLE_USERNAME \
+    --adminpass=$MOODLE_PASSWORD \
+    --adminemail=$MOODLE_EMAIL \
+    --fullname="$MOODLE_SITENAME" \
+    --shortname="$MOODLE_SITENAME" \
+    --agree-license
 }
 
 # Function to set extra database settings
@@ -257,16 +266,16 @@ upgrade_config_file() {
     update_or_add_config_value "\$CFG->reverseproxy" "$REVERSEPROXY"
     update_or_add_config_value "\$CFG->sslproxy" "$SSLPROXY"
     update_or_add_config_value "\$CFG->preventexecpath" "true"
-
+    
     # TODO: WIP for moodle 5.1dev
     update_or_add_config_value "\$CFG->enableanalytics" "false"
-
+    
     # Check if REDIS_HOST is set and not empty
     if [ -n "$REDIS_HOST" ]; then
         update_or_add_config_value "\$CFG->session_handler_class" '\\core\\session\\redis'
         update_or_add_config_value "\$CFG->session_redis_host" "$REDIS_HOST"
         update_or_add_config_value "\$CFG->session_redis_serializer_use_igbinary" "true"
-
+        
         if [ -n "${REDIS_PASSWORD:-}" ]; then
             if [ -n "${REDIS_USER:-}" ]; then
                 update_or_add_config_value "\$CFG->session_redis_auth" "['$REDIS_USER', '$REDIS_PASSWORD']"
@@ -283,10 +292,10 @@ upgrade_config_file() {
         update_or_add_config_value "\$CFG->session_redis_serializer_use_igbinary" ""
         update_or_add_config_value "\$CFG->session_redis_auth" ""
     fi
-
+    
     update_or_add_config_value "\$CFG->routerconfigured" "true"
-
-
+    
+    
 }
 
 # Function to configure Moodle settings via CLI
@@ -301,13 +310,13 @@ configure_moodle_settings() {
     php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=smtpsecure --set="$SMTP_PROTOCOL"
     php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=noreplyaddress --set="$MOODLE_MAIL_NOREPLY_ADDRESS"
     php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=emailsubjectprefix --set="$MOODLE_MAIL_PREFIX"
-
+    
     # Added the binary path, but the executable can be not installed
     php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=pathtopython --set="/usr/bin/python3"
     php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=aspellpath --set="/usr/bin/aspell"
     php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=pathtodot --set="/usr/bin/dot"
     php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=pathtopdftoppm --set="/usr/bin/pdftoppm"
-
+    
     # Check if DEBUG is set to true
     if [ "${DEBUG:-false}" = "true" ]; then
         echo "Enabling debug mode..."
@@ -318,14 +327,14 @@ configure_moodle_settings() {
         php /var/www/html/admin/cli/cfg.php --name=debug --set=0 # NONE
         php /var/www/html/admin/cli/cfg.php --name=debugdisplay --set=0
     fi
-
+    
 }
 
 # Function to perform some final configurations
 final_configurations() {
     # Avoid writing the config file
     chmod 444 config.php
-
+    
     # In Moodle versions prior to 5.1, the /public directory does not exist.
     # In these versions, we patch publicpaths.php to append ":8080" to the wwwroot check
     # in order to support running behind a custom port inside the container.
@@ -377,12 +386,12 @@ fi
 if [ -d /var/www/html/public ]; then
     MOODLE_PUBLIC_DIR=true
     export nginx_root_directory="/var/www/html/public"
-
+    
     sed -i 's|root .*;|root /var/www/html/public;|' /etc/nginx/nginx.conf
-
+    
     echo "Running composer install for Moodle 5.1+..."
     composer install --no-dev --classmap-authoritative
-
+    
 fi
 
 # Upgrade config.php file
@@ -398,10 +407,10 @@ else
     echo "Upgrading admin user"
     php -d max_input_vars=10000 /var/www/html/admin/cli/update_admin_user.php --username=$MOODLE_USERNAME --password=$MOODLE_PASSWORD --email=$MOODLE_EMAIL
     if [ -z "$AUTO_UPDATE_MOODLE" ] || [ "$AUTO_UPDATE_MOODLE" = true ]; then
-
+        
         upgrade_moodle
-
-
+        
+        
     else
         echo "Skipped auto update of Moodle"
     fi
@@ -418,3 +427,4 @@ if [ -n "$POST_CONFIGURE_COMMANDS" ]; then
     echo "Executing post-configure commands..."
     eval "$POST_CONFIGURE_COMMANDS"
 fi
+
