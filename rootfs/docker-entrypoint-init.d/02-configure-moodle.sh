@@ -303,7 +303,10 @@ configure_moodle_settings() {
     php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=emailsubjectprefix --set="$MOODLE_MAIL_PREFIX"
 
     # Added the binary path, but the executable can be not installed
-    # php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=pathtopython --set="/usr/bin/python3"
+    php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=pathtopython --set="/usr/bin/python3"
+    php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=aspellpath --set="/usr/bin/aspell"
+    php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=pathtodot --set="/usr/bin/dot"
+    php -d max_input_vars=10000 /var/www/html/admin/cli/cfg.php --name=pathtopdftoppm --set="/usr/bin/pdftoppm"
 
     # Check if DEBUG is set to true
     if [ "${DEBUG:-false}" = "true" ]; then

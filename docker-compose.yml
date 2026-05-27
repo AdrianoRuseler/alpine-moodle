@@ -21,9 +21,9 @@ services:
       context: .
       args:
         # 1. Set the Moodle branch to build (default: MOODLE_502_STABLE)
-        # 2. Set the custom plugin repository URL (default: https://github.com/AdrianoRuseler/moodle502-plugins.git)
+        # 2. Set the custom plugin repository URL (default: AdrianoRuseler/moodle502-plugins)
         MOODLE_BRANCH: MOODLE_502_STABLE
-        MOODLE_PGLS: https://github.com/AdrianoRuseler/moodle502-plugins.git
+        MOODLE_PGLS: AdrianoRuseler/moodle502-plugins
     restart: unless-stopped
     environment:
       LANG: en_US.UTF-8
