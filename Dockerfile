@@ -7,8 +7,8 @@ FROM ${ARCH}erseco/alpine-php-webserver:3.23
 LABEL maintainer="Ernesto Serrano <info@ernesto.es>"
 
 USER root
-RUN apk add --no-cache composer patch php84-posix php84-xmlwriter php84-pecl-redis \
-    php84-ldap php84-pecl-igbinary php84-exif \
+RUN apk add --no-cache composer patch php84-posix php84-xmlwriter php84-pecl-redis php84-opcache\
+    php84-ldap php84-pecl-igbinary php84-exif php84-xsl\
     # Remove alpine cache
     && rm -rf /var/cache/apk/*
 
@@ -60,17 +60,32 @@ ENV LANG=en_US.UTF-8 \
     max_input_vars=5000 \
     memory_limit=256M
 
-# Install git temporarily, clone Moodle, then remove git
 RUN set -eux; \
-    apk add --no-cache --virtual .build-deps git && \
-    rm -rf /var/www/html/* && \
+    # 1. Install Git temporarily
+    apk add --no-cache --virtual .build-deps git; \
+    \
+    # 2. Clear default web root and clone official Moodle
+    rm -rf /var/www/html/*; \
     git clone \
         --depth=1 \
         --branch "${MOODLE_BRANCH}" \
         https://github.com/moodle/moodle.git \
-        /var/www/html && \
-    rm -rf /var/www/html/.git && \
+        /var/www/html; \
+    \
+    # 3. Create a temporary workshop directory for the plugins
+    mkdir -p /tmp/moodle-source; \
+    \
+    # 4. Clone the custom plugin repository
+    git clone --depth=1 --recursive https://github.com/AdrianoRuseler/moodle502-plugins.git /tmp/moodle-source; \
+    \
+    # 5. Correctly merge the contents directly into Moodle root
+    cp -rf /tmp/moodle-source/moodle/public/* /var/www/html/public/; \
+    \
+    # 6. Housekeeping: Wipe Git histories and temporary files to shrink image size
+    rm -rf /var/www/html/.git; \
+    rm -rf /tmp/moodle-source; \
     apk del .build-deps
+
 
 COPY --chown=nobody rootfs/ /
 

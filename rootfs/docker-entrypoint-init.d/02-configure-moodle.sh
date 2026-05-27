@@ -284,6 +284,9 @@ upgrade_config_file() {
         update_or_add_config_value "\$CFG->session_redis_auth" ""
     fi
 
+    update_or_add_config_value "\$CFG->routerconfigured" "true"
+
+
 }
 
 # Function to configure Moodle settings via CLI

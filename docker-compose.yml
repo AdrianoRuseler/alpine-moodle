@@ -48,17 +48,34 @@ services:
       MOODLE_SITENAME: New-Site
       MOODLE_USERNAME: moodleuser
       MOODLE_PASSWORD: PLEASE_CHANGEME
-      SMTP_HOST: smtp.gmail.com
-      SMTP_PORT: 587
-      SMTP_USER: your_email@gmail.com
-      SMTP_PASSWORD: your_password
-      SMTP_PROTOCOL: tls
       MOODLE_MAIL_NOREPLY_ADDRESS: noreply@localhost
       MOODLE_MAIL_PREFIX: "[moodle]"
       PRE_CONFIGURE_COMMANDS: |
         echo 'This is a pre-configure command'
       POST_CONFIGURE_COMMANDS: |
         echo 'This is a post-configure command'
+      # 1. Turn it ON (This overrides custom.ini)
+      opcache_enable: "1"
+      opcache_enable_cli: "1"
+      
+      # 2. Scale up memory & files for Moodle + Plugins
+      opcache_memory_consumption: "512"
+      opcache_interned_strings_buffer: "64"
+      opcache_max_accelerated_files: "60000"
+      
+      # 3. Code change validation behavior
+      # Set to "1" if you're actively developing code. 
+      # Set to "0" (as your guide suggests) for true production speed.
+      opcache_validate_timestamps: "1"
+      opcache_revalidate_freq: "60"
+      
+      # 4. Mandatory settings for Moodle
+      opcache_save_comments: "1"
+      opcache_enable_file_override: "1"
+      
+      # 5. PHP 8.4 JIT Compiler Settings
+      opcache_jit: "tracing"
+      opcache_jit_buffer_size: "128M"
     ports:
       - 80:8080
     volumes:
