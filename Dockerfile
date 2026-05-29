@@ -21,6 +21,7 @@ ENV LD_PRELOAD=/usr/lib/preloadable_libiconv.so
 # Moodle version configuration
 ARG MOODLE_BRANCH=MOODLE_502_STABLE
 ARG MOODLE_PGLS=AdrianoRuseler/moodle502-plugins
+#ARG MOODLE_PGLS=""
 
 # Set default environment variables
 ENV LANG=en_US.UTF-8 \
@@ -41,17 +42,17 @@ ENV LANG=en_US.UTF-8 \
     REVERSEPROXY=false \
     SSLPROXY=false \
     MY_CERTIFICATES=none \
-    MOODLE_EMAIL=user@example.com \
+    MOODLE_EMAIL=admin@host.docker.internal \
     MOODLE_LANGUAGE=en \
     MOODLE_SITENAME=Dockerized_Moodle \
-    MOODLE_USERNAME=moodleuser \
-    MOODLE_PASSWORD=PLEASE_CHANGEME \
-    SMTP_HOST=smtp.gmail.com \
+    MOODLE_USERNAME=admin \
+    MOODLE_PASSWORD=M@0dl3ing \
+    SMTP_HOST=smtp.host.docker.internal \
     SMTP_PORT=587 \
-    SMTP_USER=your_email@gmail.com \
+    SMTP_USER=your_email@host.docker.internal \
     SMTP_PASSWORD=your_password \
     SMTP_PROTOCOL=tls \
-    MOODLE_MAIL_NOREPLY_ADDRESS=noreply@localhost \
+    MOODLE_MAIL_NOREPLY_ADDRESS=noreply@host.docker.internal \
     MOODLE_MAIL_PREFIX=[moodle] \
     AUTO_UPDATE_MOODLE=true \
     DEBUG=false \
@@ -84,19 +85,22 @@ RUN set -eux; \
         https://github.com/moodle/moodle.git \
         /var/www/html; \
     \
-    # 3. Create a temporary workshop directory for the plugins
-    mkdir -p /tmp/moodle-source; \
+    # Check if MOODLE_PGLS is provided before trying to download plugins
+    if [ -n "${MOODLE_PGLS:-}" ]; then \
+        # 3. Create a temporary workshop directory for the plugins
+        mkdir -p /tmp/moodle-source; \
+        \
+        DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/$MOODLE_PGLS/releases/latest" | jq -r '.assets[] | select(.name | endswith(".tar.xz")) | .browser_download_url'); \
+        \
+        curl -Lk "$DOWNLOAD_URL" | tar -xJ -C /tmp/moodle-source --strip-components=1; \
+        \
+        # 5. Correctly merge the contents directly into Moodle root
+        cp -rf /tmp/moodle-source/public/* /var/www/html/public/; \
+        rm -rf /tmp/moodle-source; \
+    fi; \
     \
-    DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/$MOODLE_PGLS/releases/latest" | jq -r '.assets[] | select(.name | endswith(".tar.xz")) | .browser_download_url'); \
-    \
-    curl -Lk "$DOWNLOAD_URL" | tar -xJ -C /tmp/moodle-source --strip-components=1; \
-    \
-    # 5. Correctly merge the contents directly into Moodle root
-    cp -rf /tmp/moodle-source/public/* /var/www/html/public/; \
-    # cp -rf /tmp/moodle-source/* /var/www/html/; \
     # 6. Housekeeping: Wipe Git histories and temporary files to shrink image size
-    rm -rf /var/www/html/.git; \
-    rm -rf /tmp/moodle-source; \
+    rm -rf /var/www/html/.git; \    
     apk del .build-deps
 
 COPY --chown=nobody rootfs/ /

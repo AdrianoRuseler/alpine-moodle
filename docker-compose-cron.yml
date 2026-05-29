@@ -48,8 +48,7 @@ services:
       PRE_CONFIGURE_COMMANDS: |
         echo 'This is a pre-configure command'
       POST_CONFIGURE_COMMANDS: |
-        echo 'Starting background Moodle cron loop...'
-        sh -c 'while true; do php /var/www/html/admin/cli/cron.php; sleep 60; done' &
+        echo 'This is a post-configure command'
     ports:
       - 80:8080
     volumes:
@@ -58,6 +57,27 @@ services:
     depends_on:
       - postgres
       - redis
+  moodle-cron:
+    image: ruseler/alpine-moodle:5.2
+    restart: unless-stopped
+    # This runs a continuous shell loop executing the cron script every 60 seconds
+    entrypoint: [ "/bin/sh", "-c", "while true; do php /var/www/html/admin/cli/cron.php; sleep 60; done" ]
+    volumes:
+      - moodledata:/var/www/moodledata
+      - moodlehtml:/var/www/html
+    environment:
+      - DB_TYPE=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=moodle
+      - DB_USER=moodle
+      - DB_PASS=moodle
+      - DB_PREFIX=mdl_
+      - REDIS_HOST=redis
+    depends_on:
+      - postgres
+      - redis
+      - moodle
 volumes:
   postgres: null
   moodledata: null
