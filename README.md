@@ -15,36 +15,27 @@ A lightweight **Moodle** Docker image built on [Alpine Linux](https://alpinelinu
 
 The documentation site covers quick start, `docker-compose` recipes, reverse proxy setups (Traefik, Nginx, NPM, Apache, Caddy), every supported environment variable, persistence and upgrade workflows, and a troubleshooting section built from the most frequent support questions.
 
-- https://github.com/AdrianoRuseler/moodle503-plugins
+- https://github.com/AdrianoRuseler/moodle405-plugins
 
 ```bash
 docker build \
-  --build-arg MOODLE_BRANCH=main \
-  --build-arg MOODLE_PGLS="" \
-  -t ruseler/alpine-moodle:5.3 .
+  --build-arg MOODLE_BRANCH=MOODLE_405_STABLE \
+  --build-arg MOODLE_PGLS=AdrianoRuseler/moodle405-plugins \
+  -t ruseler/alpine-moodle:4.5 .
 ```
 
-- https://github.com/AdrianoRuseler/moodle502-plugins
+- https://github.com/AdrianoRuseler/moodle500-plugins
 
 ```bash
 docker build \
-  --build-arg MOODLE_BRANCH=MOODLE_502_STABLE \
-  --build-arg MOODLE_PGLS=AdrianoRuseler/moodle502-plugins \
-  -t ruseler/alpine-moodle:5.2 .
+  --build-arg MOODLE_BRANCH=MOODLE_500_STABLE \
+  --build-arg MOODLE_PGLS=AdrianoRuseler/moodle500-plugins \
+  -t ruseler/alpine-moodle:5.0 .
 ```
-
-- https://github.com/AdrianoRuseler/moodle501-plugins
 
 ```bash
-docker build \
-  --build-arg MOODLE_BRANCH=MOODLE_501_STABLE \
-  --build-arg MOODLE_PGLS=AdrianoRuseler/moodle501-plugins \
-  -t ruseler/alpine-moodle:5.1 .
-```
-
-
 docker compose -f docker-compose-loki.yml up -d
-
+```
 
 ## Quick start
 

@@ -1,14 +1,12 @@
 ARG ARCH=
-#FROM ${ARCH}erseco/alpine-php-webserver:3.20
-
-# For php84
-FROM ${ARCH}erseco/alpine-php-webserver:3.23 
+# For php83
+FROM ${ARCH}erseco/alpine-php-webserver:3.20
 
 LABEL maintainer="Ernesto Serrano <info@ernesto.es>"
 
 USER root
-RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 composer patch php84-posix php84-xmlwriter php84-pecl-redis php84-opcache\
-    php84-ldap php84-pecl-igbinary php84-exif php84-xsl\
+RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 composer patch php83-posix php83-xmlwriter php83-pecl-redis php83-opcache\
+    php83-ldap php83-pecl-igbinary php83-exif php83-xsl\
     # Remove alpine cache
     && rm -rf /var/cache/apk/*
 
@@ -19,8 +17,8 @@ RUN apk add --no-cache gnu-libiconv=1.15-r3 --repository http://dl-cdn.alpinelin
 ENV LD_PRELOAD=/usr/lib/preloadable_libiconv.so
 
 # Moodle version configuration
-ARG MOODLE_BRANCH=MOODLE_502_STABLE
-ARG MOODLE_PGLS=AdrianoRuseler/moodle502-plugins
+ARG MOODLE_BRANCH=MOODLE_405_STABLE
+ARG MOODLE_PGLS=AdrianoRuseler/moodle405-plugins
 #ARG MOODLE_PGLS=""
 
 # Set default environment variables
@@ -95,7 +93,7 @@ RUN set -eux; \
         curl -Lk "$DOWNLOAD_URL" | tar -xJ -C /tmp/moodle-source --strip-components=1; \
         \
         # 5. Correctly merge the contents directly into Moodle root
-        cp -rf /tmp/moodle-source/public/* /var/www/html/public/; \
+        cp -rf /tmp/moodle-source/* /var/www/html/; \
         rm -rf /tmp/moodle-source; \
     fi; \
     \

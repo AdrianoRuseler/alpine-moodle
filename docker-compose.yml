@@ -16,14 +16,14 @@ services:
       - postgres:/var/lib/postgresql
 
   moodle:
-    image: ruseler/alpine-moodle:5.2
+    image: ruseler/alpine-moodle:5.0
     #build:
     #  context: .
     #  args:
-        # 1. Set the Moodle branch to build (default: MOODLE_502_STABLE)
-        # 2. Set the custom plugin repository URL (default: AdrianoRuseler/moodle502-plugins)
-    #    MOODLE_BRANCH: MOODLE_502_STABLE
-    #    MOODLE_PGLS: AdrianoRuseler/moodle502-plugins
+        # 1. Set the Moodle branch to build (default: MOODLE_405_STABLE)
+        # 2. Set the custom plugin repository URL (default: AdrianoRuseler/moodle405-plugins)
+    #    MOODLE_BRANCH: MOODLE_405_STABLE
+    #    MOODLE_PGLS: AdrianoRuseler/moodle405-plugins
     restart: unless-stopped
     environment:
       LANG: en_US.UTF-8
@@ -40,13 +40,9 @@ services:
       REVERSEPROXY: false
       SSLPROXY: false
       MOODLE_EMAIL: admin@host.docker.internal
-      MOODLE_LANGUAGE: en
       MOODLE_USERNAME: admin
       MOODLE_PASSWORD: M@0dl3ing
       MOODLE_MAIL_NOREPLY_ADDRESS: noreply@host.docker.internal
-      MOODLE_MAIL_PREFIX: "[moodle]"
-      PRE_CONFIGURE_COMMANDS: |
-        echo 'This is a pre-configure command'
       POST_CONFIGURE_COMMANDS: |
         echo 'Starting background Moodle cron loop...'
         sh -c 'while true; do php /var/www/html/admin/cli/cron.php; sleep 60; done' &
