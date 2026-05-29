@@ -1,12 +1,11 @@
 ARG ARCH=
 # For php83
-FROM ${ARCH}erseco/alpine-php-webserver:3.20
+FROM ${ARCH}ruseler/alpine-php-webserver:php83
 
 LABEL maintainer="Ernesto Serrano <info@ernesto.es>"
 
 USER root
-RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 composer patch php83-posix php83-xmlwriter php83-pecl-redis php83-opcache\
-    php83-ldap php83-pecl-igbinary php83-exif php83-xsl\
+RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 composer patch \
     # Remove alpine cache
     && rm -rf /var/cache/apk/*
 
@@ -53,23 +52,7 @@ ENV LANG=en_US.UTF-8 \
     MOODLE_MAIL_NOREPLY_ADDRESS=noreply@host.docker.internal \
     MOODLE_MAIL_PREFIX=[moodle] \
     AUTO_UPDATE_MOODLE=true \
-    DEBUG=false \
-    client_max_body_size=50M \
-    post_max_size=50M \
-    upload_max_filesize=50M \
-    max_input_vars=5000 \
-    memory_limit=256M \
-    opcache_enable=1 \
-    opcache_enable_cli=1 \
-    opcache_memory_consumption=512 \
-    opcache_interned_strings_buffer=64 \
-    opcache_max_accelerated_files=60000 \
-    opcache_validate_timestamps=1 \
-    opcache_revalidate_freq=60 \
-    opcache_save_comments=1 \
-    opcache_enable_file_override=1 \
-    opcache_jit=tracing \
-    opcache_jit_buffer_size=128M
+    DEBUG=false 
 
 RUN set -eux; \
     # 1. Install Git temporarily
@@ -105,7 +88,7 @@ COPY --chown=nobody rootfs/ /
 
 USER nobody
 
-#ENV MOOSH_URL=https://github.com/tmuras/moosh/archive/master.tar.gz
-#RUN curl -L "$MOOSH_URL" | tar xz --strip-components=1 -C /opt/moosh/
+ENV MOOSH_URL=https://github.com/tmuras/moosh/archive/master.tar.gz
+RUN curl -L "$MOOSH_URL" | tar xz --strip-components=1 -C /opt/moosh/
 
 #RUN composer install --no-interaction --no-cache --working-dir=/var/www/html/

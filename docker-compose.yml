@@ -16,7 +16,7 @@ services:
       - postgres:/var/lib/postgresql
 
   moodle:
-    image: ruseler/alpine-moodle:5.0
+    image: ruseler/alpine-moodle:4.5
     #build:
     #  context: .
     #  args:
