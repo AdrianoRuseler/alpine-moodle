@@ -1,45 +1,44 @@
+---
 services:
+
   redis:
     image: redis:alpine
     restart: unless-stopped
 
-  mariadb:
-    image: linuxserver/mariadb:latest
+  postgres:
+    image: postgres:alpine
     restart: unless-stopped
     environment:
-      # ALLOW_EMPTY_PASSWORD is recommended only for development.
-      - ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_ROOT_PASSWORD=moodle_root_pass
-      - MYSQL_DATABASE=moodle
-      - MYSQL_USER=moodle
-      - MYSQL_PASSWORD=moodle
+      - POSTGRES_PASSWORD=moodle
+      - POSTGRES_USER=moodle
+      - POSTGRES_DB=moodle
     volumes:
-      - mariadb_data:/config
+      - postgres:/var/lib/postgresql
 
   moodle:
     image: ruseler/alpine-moodle:5.2
-    # build:
-    #   context: .
-    #   args:
-    #     # 1. Set the Moodle branch to build (default: MOODLE_502_STABLE)
-    #     # 2. Set the custom plugin repository URL (default: AdrianoRuseler/moodle502-plugins)
-    #     MOODLE_BRANCH: MOODLE_502_STABLE
-    #     MOODLE_PGLS: AdrianoRuseler/moodle502-plugins
+    #build:
+    #  context: .
+    #  args:
+        # 1. Set the Moodle branch to build (default: MOODLE_502_STABLE)
+        # 2. Set the custom plugin repository URL (default: AdrianoRuseler/moodle502-plugins)
+    #    MOODLE_BRANCH: MOODLE_502_STABLE
+    #    MOODLE_PGLS: AdrianoRuseler/moodle502-plugins
     restart: unless-stopped
     environment:
       LANG: en_US.UTF-8
       LANGUAGE: en_US:en
       SITE_URL: http://localhost
-      DB_TYPE: mariadb
-      DB_HOST: mariadb
-      DB_PORT: 3306
+      DB_TYPE: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
       DB_NAME: moodle
       DB_USER: moodle
       DB_PASS: moodle
       DB_PREFIX: mdl_
       REDIS_HOST: redis
-      REVERSEPROXY: "false"
-      SSLPROXY: "false"
+      REVERSEPROXY: false
+      SSLPROXY: false
       MOODLE_EMAIL: admin@host.docker.internal
       MOODLE_LANGUAGE: en
       MOODLE_USERNAME: admin
@@ -57,10 +56,9 @@ services:
       - moodledata:/var/www/moodledata
       - moodlehtml:/var/www/html
     depends_on:
-      - mariadb
+      - postgres
       - redis
-
 volumes:
-  mariadb_data:
-  moodledata:
-  moodlehtml:
+  postgres: null
+  moodledata: null
+  moodlehtml: null
