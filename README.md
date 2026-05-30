@@ -1,13 +1,12 @@
 # Alpine Moodle
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/erseco/alpine-moodle.svg)](https://hub.docker.com/r/erseco/alpine-moodle/)
-![Docker Image Size](https://img.shields.io/docker/image-size/erseco/alpine-moodle)
-![nginx 1.26](https://img.shields.io/badge/nginx-1.26-brightgreen.svg)
-![php 8.3](https://img.shields.io/badge/php-8.3-brightgreen.svg)
+[![Docker Pulls](https://img.shields.io/docker/pulls/ruseler/alpine-moodle.svg)](https://hub.docker.com/r/ruseler/alpine-moodle/)
+![Docker Image Size](https://img.shields.io/docker/image-size/ruseler/alpine-moodle)
+![nginx 1.28](https://img.shields.io/badge/nginx-1.28-brightgreen.svg)
+![php 8.2](https://img.shields.io/badge/php-8.2-brightgreen.svg)
 ![moodle](https://img.shields.io/badge/moodle-configurable-yellow)
 ![moosh 1.27](https://img.shields.io/badge/moosh-1.27-orange)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
-![Build Status](https://github.com/erseco/alpine-moodle/actions/workflows/build.yml/badge.svg)
 
 A lightweight **Moodle** Docker image built on [Alpine Linux](https://alpinelinux.org/) — ~100 MB, PHP 8.3 FPM, Nginx, multi-arch, configured entirely through environment variables.
 

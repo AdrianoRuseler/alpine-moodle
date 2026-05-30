@@ -1,6 +1,6 @@
 ARG ARCH=
 # For php83
-FROM ${ARCH}ruseler/alpine-php-webserver:php83
+FROM ${ARCH}ruseler/alpine-php-webserver:php82
 
 LABEL maintainer="Ernesto Serrano <info@ernesto.es>"
 
