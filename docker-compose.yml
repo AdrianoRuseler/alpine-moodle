@@ -15,7 +15,19 @@ services:
       - MYSQL_PASSWORD=moodle
     volumes:
       - mariadb_data:/config
-
+  mailpit:
+    image: axllent/mailpit:latest
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+    ports:
+      - 8025:8025
+      - 1025:1025
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATABASE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
   moodle:
     image: ruseler/alpine-moodle:5.2
     # build:
@@ -46,6 +58,10 @@ services:
       MOODLE_PASSWORD: M@0dl3ing
       MOODLE_MAIL_NOREPLY_ADDRESS: noreply@host.docker.internal
       MOODLE_MAIL_PREFIX: "[moodle]"
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_PROTOCOL:
+      RUN_CRON_TASKS: false
       PRE_CONFIGURE_COMMANDS: |
         echo 'This is a pre-configure command'
       POST_CONFIGURE_COMMANDS: |
