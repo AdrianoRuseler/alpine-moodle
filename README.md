@@ -11,7 +11,7 @@
 
 A lightweight **Moodle** Docker image built on [Alpine Linux](https://alpinelinux.org/) — ~100 MB, PHP 8.3 FPM, Nginx, multi-arch, configured entirely through environment variables.
 
-> 📚 **Full documentation: <https://erseco.github.io/alpine-moodle/>**
+> 📚 **Full documentation: <https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/>**
 
 The documentation site covers quick start, `docker-compose` recipes, reverse proxy setups (Traefik, Nginx, NPM, Apache, Caddy), every supported environment variable, persistence and upgrade workflows, and a troubleshooting section built from the most frequent support questions.
 
