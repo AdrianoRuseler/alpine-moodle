@@ -21,7 +21,7 @@ The documentation site covers quick start, `docker-compose` recipes, reverse pro
 docker build \
   --build-arg MOODLE_BRANCH=main \
   --build-arg MOODLE_PGLS="" \
-  -t ruseler/alpine-moodle:5.3 .
+  -t ruseler/alpine-moodle:dev .
 ```
 
 - https://github.com/AdrianoRuseler/moodle502-plugins
