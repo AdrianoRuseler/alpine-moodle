@@ -42,6 +42,25 @@ docker build \
 ```
 
 
+- https://github.com/AdrianoRuseler/moodle405-plugins
+
+```bash
+docker build \
+  --build-arg MOODLE_BRANCH=MOODLE_405_STABLE \
+  --build-arg MOODLE_PGLS=AdrianoRuseler/moodle405-plugins \
+  -t ruseler/alpine-moodle:4.5 .
+```
+
+- https://github.com/AdrianoRuseler/moodle500-plugins
+
+```bash
+docker build \
+  --build-arg MOODLE_BRANCH=MOODLE_500_STABLE \
+  --build-arg MOODLE_PGLS=AdrianoRuseler/moodle500-plugins \
+  -t ruseler/alpine-moodle:5.0 .
+```
+
+
 docker compose -f docker-compose-loki.yml up -d
 
 
