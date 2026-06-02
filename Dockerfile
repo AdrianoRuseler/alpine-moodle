@@ -3,17 +3,16 @@ ARG ARCH=
 # For php84, we use the latest alpine-php-webserver image which includes PHP 8.4 and is based on Alpine Linux. This image provides a lightweight and secure environment for running Moodle with PHP 8.4.
 FROM ${ARCH}ruseler/alpine-php-webserver:php84
 
-LABEL maintainer="Ernesto Serrano <info@ernesto.es>"
+LABEL maintainer="Adriano Ruseler <ruseler@utfpr.edu.br>" \
+      description="Alpine Linux image with Moodle and PHP 8.4" \
+      version="5.2"
 
 USER root
-RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 composer patch \
+RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 composer patch gnu-libiconv \
     # Remove alpine cache
     && rm -rf /var/cache/apk/*
 
-# add a quick-and-dirty hack  to fix https://github.com/erseco/alpine-moodle/issues/26
-RUN apk add --no-cache gnu-libiconv=1.15-r3 --repository http://dl-cdn.alpinelinux.org/alpine/v3.13/community/ --allow-untrusted \
-    # Remove alpine cache
-    && rm -rf /var/cache/apk/*
+# Environment variable for iconv fix
 ENV LD_PRELOAD=/usr/lib/preloadable_libiconv.so
 
 # Moodle version configuration
@@ -53,10 +52,11 @@ ENV LANG=en_US.UTF-8 \
     MOODLE_MAIL_NOREPLY_ADDRESS=noreply@host.docker.internal \
     MOODLE_MAIL_PREFIX=[moodle] \
     AUTO_UPDATE_MOODLE=true \
+    RUN_CRON_TASKS=true \
     DEBUG=false
 
 RUN set -eux; \
-    # 1. Install Git temporarily
+    # Install Git temporarily
     apk add --no-cache --virtual .build-deps git curl tar jq xz; \
     \
     # 2. Clear default web root and clone official Moodle
@@ -67,29 +67,37 @@ RUN set -eux; \
         https://github.com/moodle/moodle.git \
         /var/www/html; \
     \
-    # Check if MOODLE_PGLS is provided before trying to download plugins
+    # Check and download custom plugins if variable is set
     if [ -n "${MOODLE_PGLS:-}" ]; then \
-        # 3. Create a temporary workshop directory for the plugins
         mkdir -p /tmp/moodle-source; \
         \
         DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/$MOODLE_PGLS/releases/latest" | jq -r '.assets[] | select(.name | endswith(".tar.xz")) | .browser_download_url'); \
         \
-        curl -Lk "$DOWNLOAD_URL" | tar -xJ -C /tmp/moodle-source --strip-components=1; \
-        \
-        # 5. Correctly merge the contents directly into Moodle root
-        cp -rf /tmp/moodle-source/public/* /var/www/html/public/; \
+        if [ "$DOWNLOAD_URL" != "null" ] && [ -n "$DOWNLOAD_URL" ]; then \
+            curl -Lk "$DOWNLOAD_URL" | tar -xJ -C /tmp/moodle-source --strip-components=1; \
+            \
+            # FIXED: Corrected destination path. 
+            # Assuming your release zip has a 'public' folder containing the plugins:
+            if [ -d "/tmp/moodle-source/public" ]; then \
+                cp -rf /tmp/moodle-source/public/* /var/www/html/; \
+            else \
+                cp -rf /tmp/moodle-source/* /var/www/html/; \
+            fi; \
+        fi; \
         rm -rf /tmp/moodle-source; \
     fi; \
     \
-    # 6. Housekeeping: Wipe Git histories and temporary files to shrink image size
-    rm -rf /var/www/html/.git; \    
+    # Install Moosh from GitHub (2.x Branch)
+    git clone -b 2.x --depth=1 https://github.com/tmuras/moosh.git /opt/moosh; \
+    cd /opt/moosh; \
+    composer install --no-dev --no-interaction --no-cache; \
+    ln -s /opt/moosh/moosh /usr/local/bin/moosh; \
+    \
+    # Housekeeping: Wipe Git histories and temporary files to shrink image size
+    rm -rf /var/www/html/.git /opt/moosh/.git; \   
     apk del .build-deps
 
 COPY --chown=nobody rootfs/ /
 
+RUN echo "alias moosh='moosh --moodle-path=/var/www/html/public'" >> /etc/profile.d/moosh.sh
 USER nobody
-
-#ENV MOOSH_URL=https://github.com/tmuras/moosh/archive/master.tar.gz
-#RUN curl -L "$MOOSH_URL" | tar xz --strip-components=1 -C /opt/moosh/
-
-#RUN composer install --no-interaction --no-cache --working-dir=/var/www/html/

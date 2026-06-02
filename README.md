@@ -2,10 +2,10 @@
 
 [![Docker Pulls](https://img.shields.io/docker/pulls/ruseler/alpine-moodle.svg)](https://hub.docker.com/r/ruseler/alpine-moodle/)
 ![Docker Image Size](https://img.shields.io/docker/image-size/ruseler/alpine-moodle)
-![nginx 1.28](https://img.shields.io/badge/nginx-1.28-brightgreen.svg)
-![php 8.4](https://img.shields.io/badge/php-8.4-brightgreen.svg)
+[![nginx 1.28](https://img.shields.io/badge/nginx-1.28-brightgreen.svg)](https://github.com/nginx/nginx/tree/stable-1.28)
+[![php 8.4](https://img.shields.io/badge/php-8.4-brightgreen.svg)](https://www.php.net/releases/8.4/en.php)
 ![moodle](https://img.shields.io/badge/moodle-configurable-yellow)
-![moosh 1.27](https://img.shields.io/badge/moosh-1.27-orange)
+[![moosh 2.0](https://img.shields.io/badge/moosh-2.0-orange)](https://moosh-online.com/moosh2/)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
 
 A lightweight **Moodle** Docker image built on [Alpine Linux](https://alpinelinux.org/) — ~100 MB, PHP 8.4 FPM, Nginx, multi-arch, configured entirely through environment variables.

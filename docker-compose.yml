@@ -52,16 +52,15 @@ services:
       REDIS_HOST: redis
       REVERSEPROXY: "false"
       SSLPROXY: "false"
-      MOODLE_EMAIL: admin@host.docker.internal
       MOODLE_LANGUAGE: en
       MOODLE_USERNAME: admin
       MOODLE_PASSWORD: M@0dl3ing
+      MOODLE_EMAIL: admin@host.docker.internal
       MOODLE_MAIL_NOREPLY_ADDRESS: noreply@host.docker.internal
       MOODLE_MAIL_PREFIX: "[moodle]"
       SMTP_HOST: mailpit
       SMTP_PORT: 1025
       SMTP_PROTOCOL:
-      RUN_CRON_TASKS: false
       PRE_CONFIGURE_COMMANDS: |
         echo 'This is a pre-configure command'
       POST_CONFIGURE_COMMANDS: |
