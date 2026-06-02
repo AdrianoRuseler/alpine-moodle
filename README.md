@@ -1,17 +1,16 @@
 # Alpine Moodle
 
-[![Docker Pulls](https://img.shields.io/docker/pulls/erseco/alpine-moodle.svg)](https://hub.docker.com/r/erseco/alpine-moodle/)
-![Docker Image Size](https://img.shields.io/docker/image-size/erseco/alpine-moodle)
-![nginx 1.26](https://img.shields.io/badge/nginx-1.26-brightgreen.svg)
-![php 8.3](https://img.shields.io/badge/php-8.3-brightgreen.svg)
+[![Docker Pulls](https://img.shields.io/docker/pulls/ruseler/alpine-moodle.svg)](https://hub.docker.com/r/ruseler/alpine-moodle/)
+![Docker Image Size](https://img.shields.io/docker/image-size/ruseler/alpine-moodle)
+![nginx 1.28](https://img.shields.io/badge/nginx-1.28-brightgreen.svg)
+![php 8.4](https://img.shields.io/badge/php-8.4-brightgreen.svg)
 ![moodle](https://img.shields.io/badge/moodle-configurable-yellow)
 ![moosh 1.27](https://img.shields.io/badge/moosh-1.27-orange)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
-![Build Status](https://github.com/erseco/alpine-moodle/actions/workflows/build.yml/badge.svg)
 
-A lightweight **Moodle** Docker image built on [Alpine Linux](https://alpinelinux.org/) — ~100 MB, PHP 8.3 FPM, Nginx, multi-arch, configured entirely through environment variables.
+A lightweight **Moodle** Docker image built on [Alpine Linux](https://alpinelinux.org/) — ~100 MB, PHP 8.4 FPM, Nginx, multi-arch, configured entirely through environment variables.
 
-> 📚 **Full documentation: <https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/>**
+> 📚 **Full documentation:** https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle
 
 The documentation site covers quick start, `docker-compose` recipes, reverse proxy setups (Traefik, Nginx, NPM, Apache, Caddy), every supported environment variable, persistence and upgrade workflows, and a troubleshooting section built from the most frequent support questions.
 
@@ -42,7 +41,6 @@ docker build \
   -t ruseler/alpine-moodle:5.1 .
 ```
 
-
 docker compose -f docker-compose-loki.yml up -d
 
 
@@ -63,7 +61,7 @@ services:
       - postgres:/var/lib/postgresql
 
   moodle:
-    image: erseco/alpine-moodle
+    image: ruseler/alpine-moodle:5.2
     restart: unless-stopped
     environment:
       MOODLE_USERNAME: admin
@@ -86,7 +84,7 @@ volumes:
 docker compose up -d
 ```
 
-For production deployments (reverse proxy, TLS, Redis, tuning, upgrades), see the [documentation site](https://erseco.github.io/alpine-moodle/).
+For production deployments (reverse proxy, TLS, Redis, tuning, upgrades), see the [documentation site](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/).
 
 ## Running Commands as Root
 
@@ -104,14 +102,13 @@ docker compose exec --user root moodle sh -c "apk update && apk add nano curl"
 
 ## Configuration
 
-Define the ENV variables in `docker-compose.yml`. The full reference with notes, grouping and defaults lives at <https://erseco.github.io/alpine-moodle/environment-variables/>.
-
+Define the ENV variables in `docker-compose.yml`. The full reference with notes, grouping and defaults lives at [Environment Variables](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/environment-variables).
 | Variable Name               | Default              | Description |
 |-----------------------------|----------------------|-------------|
 | `LANG`                      | `en_US.UTF-8`        | System locale. |
 | `LANGUAGE`                  | `en_US:en`           | System language fallback chain. |
 | `SITE_URL`                  | `http://localhost`   | Public site URL. Must match what users type in the browser. |
-| `REVERSEPROXY`              | `false`              | Set to `true` only if the site is intentionally served under multiple base URLs. See the [Reverse Proxy](https://erseco.github.io/alpine-moodle/reverse-proxy/) guide. |
+| `REVERSEPROXY`              | `false`              | Set to `true` only if the site is intentionally served under multiple base URLs. See the [Reverse Proxy](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/reverse-proxy) guide. |
 | `SSLPROXY`                  | `false`              | Set to `true` when a reverse proxy terminates TLS. Trusts `X-Forwarded-Proto`. |
 | `REDIS_HOST`                |                      | Hostname of the Redis instance (enables Redis sessions/cache). |
 | `REDIS_PASSWORD`            |                      | Redis password. |
@@ -157,8 +154,8 @@ Define the ENV variables in `docker-compose.yml`. The full reference with notes,
 
 ## Key features
 
-- Compact image (~100 MB) built on [`erseco/alpine-php-webserver`](https://github.com/erseco/alpine-php-webserver)
-- PHP 8.3 FPM with `ondemand` process manager — idles near-zero CPU
+- Compact image (~250 MB) built on [`ruseler/alpine-php-webserver`](https://github.com/AdrianoRuseler/alpine-php-webserver)
+- PHP 8.4 FPM with `ondemand` process manager — idles near-zero CPU
 - PostgreSQL, MariaDB/MySQL **or** SQLite (single-container dev mode)
 - Optional Redis session handler
 - Supports Moodle 4.x, 5.0, 5.1+ (auto-detects `/public` layout) and `main`
@@ -171,29 +168,29 @@ Define the ENV variables in `docker-compose.yml`. The full reference with notes,
 
 ## Registries
 
-- Docker Hub: `erseco/alpine-moodle`
-- GitHub Container Registry: `ghcr.io/erseco/alpine-moodle`
+- Docker Hub: `ruseler/alpine-moodle`
 
 ## Documentation
 
-The full, searchable documentation lives at **<https://erseco.github.io/alpine-moodle/>**:
+The full, searchable documentation lives at [ruseleredu.github.io/moodle-docs/dev/alpine-moodle](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle):
 
-- [Quick Start](https://erseco.github.io/alpine-moodle/quick-start/)
-- [Docker Compose examples](https://erseco.github.io/alpine-moodle/docker-compose/)
-- [Reverse proxy guides](https://erseco.github.io/alpine-moodle/reverse-proxy/) (Traefik, Nginx, NPM, Apache, Caddy)
-- [Environment variables reference](https://erseco.github.io/alpine-moodle/environment-variables/)
-- [Persistence & volumes](https://erseco.github.io/alpine-moodle/persistence/)
-- [Configuration & Moosh](https://erseco.github.io/alpine-moodle/configuration/)
-- [SQLite single-container mode](https://erseco.github.io/alpine-moodle/sqlite/)
-- [Upgrading](https://erseco.github.io/alpine-moodle/upgrading/)
-- [Troubleshooting](https://erseco.github.io/alpine-moodle/troubleshooting/)
-- [FAQ](https://erseco.github.io/alpine-moodle/faq/)
+- [Quick Start](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/quick-start/)
+- [Docker Compose examples](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/docker-compose/)
+- [Reverse proxy guides](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/reverse-proxy/) (Traefik, Nginx, NPM, Apache, Caddy)
+- [Environment variables reference](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/environment-variables/)
+- [Persistence & volumes](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/persistence/)
+- [Configuration & Moosh](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/configuration/)
+- [SQLite single-container mode](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/sqlite/)
+- [Email/SMTP](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/mail)
+- [Upgrading](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/upgrading/)
+- [Troubleshooting](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/troubleshooting/)
+- [FAQ](https://ruseleredu.github.io/moodle-docs/dev/alpine-moodle/faq/)
 
 ## Contributing
 
-Issues and pull requests are welcome: <https://github.com/erseco/alpine-moodle/issues>.
+Issues and pull requests are welcome: <https://github.com/AdrianoRuseler/alpine-moodle/issues>.
 
-Documentation sources live under [`docs/`](docs/) and are built with [Zensical](https://zensical.org/) via the `docs.yml` GitHub Actions workflow.
+Documentation sources live at [`dev-docs/alpine-moodle`](https://github.com/ruseleredu/moodle-docs/tree/main/dev-docs/alpine-moodle) and are built with [Docusaurus](https://docusaurus.io/).
 
 ## License
 
