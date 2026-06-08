@@ -56,7 +56,7 @@ ENV LANG=en_US.UTF-8 \
     DEBUG=false
 
 RUN set -eux; \
-    # 1. Install Git temporarily
+    # Install Git temporarily
     apk add --no-cache --virtual .build-deps git curl tar jq xz; \
     \
     # 2. Clear default web root and clone official Moodle
@@ -67,29 +67,41 @@ RUN set -eux; \
         https://github.com/moodle/moodle.git \
         /var/www/html; \
     \
-    # Check if MOODLE_PGLS is provided before trying to download plugins
+    # 3. Check and download custom plugins if variable is set
     if [ -n "${MOODLE_PGLS:-}" ]; then \
-        # 3. Create a temporary workshop directory for the plugins
+        echo "--- Fetching latest release for: $MOODLE_PGLS ---"; \
         mkdir -p /tmp/moodle-source; \
         \
-        DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/$MOODLE_PGLS/releases/latest" | jq -r '.assets[] | select(.name | endswith(".tar.xz")) | .browser_download_url'); \
+        # Safe API pull following redirects and guarding against jq errors
+        API_RESPONSE=$(curl -sSL "https://api.github.com/repos/$MOODLE_PGLS/releases/latest"); \
+        DOWNLOAD_URL=$(echo "$API_RESPONSE" | jq -r '.assets[]? | select(.name | endswith(".tar.xz")) | .browser_download_url' | head -n 1); \
         \
-        curl -Lk "$DOWNLOAD_URL" | tar -xJ -C /tmp/moodle-source --strip-components=1; \
-        \
-        # 5. Correctly merge the contents directly into Moodle root
-        cp -rf /tmp/moodle-source/public/* /var/www/html/public/; \
+        if [ -n "$DOWNLOAD_URL" ] && [ "$DOWNLOAD_URL" != "null" ]; then \
+            echo "Downloading plugins from: $DOWNLOAD_URL"; \
+            if curl -sSLk "$DOWNLOAD_URL" | tar -xJf - -C /tmp/moodle-source --strip-components=1; then \
+               cp -rf /tmp/moodle-source/* /var/www/html/; \
+            else \
+                echo "ERROR: Failed to download or extract plugin archive." >&2; \
+                exit 1; \
+            fi; \
+        else \
+            echo "ERROR: Valid .tar.xz asset not found for '$MOODLE_PGLS'." >&2; \
+            echo "API Response: $API_RESPONSE" >&2; \
+            exit 1; \
+        fi; \
         rm -rf /tmp/moodle-source; \
     fi; \
     \
-    # 6. Housekeeping: Wipe Git histories and temporary files to shrink image size
-    rm -rf /var/www/html/.git; \    
+    # Install Moosh from GitHub (2.x Branch)
+    git clone -b 2.x --depth=1 https://github.com/tmuras/moosh.git /opt/moosh; \
+    cd /opt/moosh; \
+    composer install --no-dev --no-interaction --no-cache; \
+    ln -s /opt/moosh/moosh /usr/local/bin/moosh; \
+    \
+    # Housekeeping: Wipe Git histories and temporary files to shrink image size
+    rm -rf /var/www/html/.git /opt/moosh/.git; \   
     apk del .build-deps
 
 COPY --chown=nobody rootfs/ /
 
 USER nobody
-
-#ENV MOOSH_URL=https://github.com/tmuras/moosh/archive/master.tar.gz
-#RUN curl -L "$MOOSH_URL" | tar xz --strip-components=1 -C /opt/moosh/
-
-#RUN composer install --no-interaction --no-cache --working-dir=/var/www/html/
