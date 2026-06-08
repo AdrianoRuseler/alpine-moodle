@@ -67,22 +67,27 @@ RUN set -eux; \
         https://github.com/moodle/moodle.git \
         /var/www/html; \
     \
-    # Check and download custom plugins if variable is set
+    # 3. Check and download custom plugins if variable is set
     if [ -n "${MOODLE_PGLS:-}" ]; then \
+        echo "--- Fetching latest release for: $MOODLE_PGLS ---"; \
         mkdir -p /tmp/moodle-source; \
         \
-        DOWNLOAD_URL=$(curl -s "https://api.github.com/repos/$MOODLE_PGLS/releases/latest" | jq -r '.assets[] | select(.name | endswith(".tar.xz")) | .browser_download_url'); \
+        # Safe API pull following redirects and guarding against jq errors
+        API_RESPONSE=$(curl -sSL "https://api.github.com/repos/$MOODLE_PGLS/releases/latest"); \
+        DOWNLOAD_URL=$(echo "$API_RESPONSE" | jq -r '.assets[]? | select(.name | endswith(".tar.xz")) | .browser_download_url' | head -n 1); \
         \
-        if [ "$DOWNLOAD_URL" != "null" ] && [ -n "$DOWNLOAD_URL" ]; then \
-            curl -Lk "$DOWNLOAD_URL" | tar -xJ -C /tmp/moodle-source --strip-components=1; \
-            \
-            # FIXED: Corrected destination path. 
-            # Assuming your release zip has a 'public' folder containing the plugins:
-            if [ -d "/tmp/moodle-source/public" ]; then \
-                cp -rf /tmp/moodle-source/public/* /var/www/html/; \
+        if [ -n "$DOWNLOAD_URL" ] && [ "$DOWNLOAD_URL" != "null" ]; then \
+            echo "Downloading plugins from: $DOWNLOAD_URL"; \
+            if curl -sSLk "$DOWNLOAD_URL" | tar -xJf - -C /tmp/moodle-source --strip-components=1; then \
+               cp -rf /tmp/moodle-source/* /var/www/html/; \
             else \
-                cp -rf /tmp/moodle-source/* /var/www/html/; \
+                echo "ERROR: Failed to download or extract plugin archive." >&2; \
+                exit 1; \
             fi; \
+        else \
+            echo "ERROR: Valid .tar.xz asset not found for '$MOODLE_PGLS'." >&2; \
+            echo "API Response: $API_RESPONSE" >&2; \
+            exit 1; \
         fi; \
         rm -rf /tmp/moodle-source; \
     fi; \
