@@ -29,7 +29,7 @@ docker build \
 docker build \
   --build-arg MOODLE_BRANCH=MOODLE_502_STABLE \
   --build-arg MOODLE_PGLS=AdrianoRuseler/moodle502-plugins \
-  -t ruseler/alpine-moodle:5.2 .
+  -t ruseler/alpine-moodle:5.2 . --no-cache
 ```
 
 - https://github.com/AdrianoRuseler/moodle501-plugins
@@ -48,7 +48,7 @@ docker build \
 docker build \
   --build-arg MOODLE_BRANCH=MOODLE_405_STABLE \
   --build-arg MOODLE_PGLS=AdrianoRuseler/moodle405-plugins \
-  -t ruseler/alpine-moodle:4.5 .
+  -t ruseler/alpine-moodle:4.5 . --no-cache
 ```
 
 - https://github.com/ProjetoSophiaDev/moodle405plugins
@@ -57,7 +57,7 @@ docker build \
 docker build \
   --build-arg MOODLE_BRANCH=MOODLE_405_STABLE \
   --build-arg MOODLE_PGLS=ProjetoSophiaDev/moodle405plugins \
-  -t ruseler/alpine-sophia:4.5 .
+  -t ruseler/alpine-sophia:4.5 . --no-cache
 ```
 
 
