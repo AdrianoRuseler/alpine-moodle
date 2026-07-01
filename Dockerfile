@@ -3,10 +3,10 @@ ARG ARCH=
 # For php84, we use the latest alpine-php-webserver image which includes PHP 8.4 and is based on Alpine Linux. This image provides a lightweight and secure environment for running Moodle with PHP 8.4.
 FROM ${ARCH}ruseler/alpine-php-webserver:php84
 
-LABEL maintainer="Ernesto Serrano <info@ernesto.es>"
+LABEL maintainer="Adriano Ruseler<adrianoruseler@gmail.com>"
 
 USER root
-RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 composer patch \
+RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 patch \
     # Remove alpine cache
     && rm -rf /var/cache/apk/*
 
