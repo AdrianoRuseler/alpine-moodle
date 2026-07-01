@@ -5,8 +5,7 @@ FROM ${ARCH}ruseler/alpine-php-webserver:php83
 LABEL maintainer="Ernesto Serrano <info@ernesto.es>"
 
 USER root
-RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 composer patch \
-    # Remove alpine cache
+RUN apk add --no-cache graphviz ghostscript ghostscript-fonts poppler-utils aspell aspell-en python3 patch \
     && rm -rf /var/cache/apk/*
 
 # add a quick-and-dirty hack  to fix https://github.com/erseco/alpine-moodle/issues/26
