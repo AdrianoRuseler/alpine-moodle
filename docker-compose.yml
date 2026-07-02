@@ -16,15 +16,15 @@ services:
       - postgres:/var/lib/postgresql
 
   moodle:
-    #image: ruseler/alpine-moodle:4.5
+    image: ruseler/alpine-moodle:5.1
     #image: ruseler/alpine-sophia:4.5
-    build:
-      context: .
-      args:
+    #build:
+    #  context: .
+    #  args:
         # 1. Set the Moodle branch to build (default: MOODLE_405_STABLE)
         # 2. Set the custom plugin repository URL (default: AdrianoRuseler/moodle405-plugins)
-        MOODLE_BRANCH: MOODLE_500_STABLE
-        MOODLE_PGLS: AdrianoRuseler/moodle500-plugins
+    #    MOODLE_BRANCH: MOODLE_500_STABLE
+     #   MOODLE_PGLS: AdrianoRuseler/moodle500-plugins
     restart: unless-stopped
     environment:
       LANG: en_US.UTF-8
