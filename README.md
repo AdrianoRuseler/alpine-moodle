@@ -60,6 +60,15 @@ docker build \
   -t ruseler/alpine-moodle:4.5 . --no-cache
 ```
 
+
+- https://github.com/ProjetoSophiaDev/moodle405plugins
+
+```bash
+docker build \
+  --build-arg MOODLE_BRANCH=MOODLE_405_STABLE \
+  --build-arg MOODLE_PGLS=ProjetoSophiaDev/moodle405plugins \
+  -t ruseler/alpine-sophia:4.5 . --no-cache
+```
 docker compose -f docker-compose-loki.yml up -d
 
 
