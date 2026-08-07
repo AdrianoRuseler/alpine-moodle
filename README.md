@@ -3,7 +3,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/ruseler/alpine-moodle.svg)](https://hub.docker.com/r/ruseler/alpine-moodle/)
 ![Docker Image Size](https://img.shields.io/docker/image-size/ruseler/alpine-moodle)
 ![nginx 1.28](https://img.shields.io/badge/nginx-1.28-brightgreen.svg)
-![php 8.3](https://img.shields.io/badge/php-8.3-brightgreen.svg)
+![php 8.4](https://img.shields.io/badge/php-8.4-brightgreen.svg)
 ![moodle](https://img.shields.io/badge/moodle-configurable-yellow)
 ![moosh 1.27](https://img.shields.io/badge/moosh-1.27-orange)
 ![License MIT](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -20,7 +20,7 @@ The documentation site covers quick start, `docker-compose` recipes, reverse pro
 docker build \
   --build-arg MOODLE_BRANCH=main \
   --build-arg MOODLE_PGLS="" \
-  -t ruseler/alpine-moodle:dev .
+  -t ruseler/alpine-moodle:dev . --no-cache
 ```
 
 - https://github.com/AdrianoRuseler/moodle502-plugins
@@ -60,35 +60,6 @@ docker build \
   -t ruseler/alpine-moodle:4.5 . --no-cache
 ```
 
-- https://github.com/ProjetoSophiaDev/moodle405plugins
-
-```bash
-docker build \
-  --build-arg MOODLE_BRANCH=MOODLE_405_STABLE \
-  --build-arg MOODLE_PGLS=ProjetoSophiaDev/moodle405plugins \
-  -t ruseler/alpine-sophia:4.5 . --no-cache
-```
-
-
-
-- https://github.com/AdrianoRuseler/moodle500-plugins
-
-```bash
-docker build \
-  --build-arg MOODLE_BRANCH=MOODLE_500_STABLE \
-  --build-arg MOODLE_PGLS=AdrianoRuseler/moodle500-plugins \
-  -t ruseler/alpine-moodle:5.0 .
-```
-
-- https://github.com/ProjetoSophiaDev/moodle500plugins
-
-```bash
-docker build \
-  --build-arg MOODLE_BRANCH=MOODLE_500_STABLE \
-  --build-arg MOODLE_PGLS=ProjetoSophiaDev/moodle500plugins \
-  -t ruseler/alpine-sophia:5.0 .
-```
-
 docker compose -f docker-compose-loki.yml up -d
 
 
@@ -109,7 +80,7 @@ services:
       - postgres:/var/lib/postgresql
 
   moodle:
-    image: ruseler/alpine-moodle:5.2
+    image: ruseler/alpine-moodle:5.0
     restart: unless-stopped
     environment:
       MOODLE_USERNAME: admin
