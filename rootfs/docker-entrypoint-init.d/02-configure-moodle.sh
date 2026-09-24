@@ -314,6 +314,27 @@ upgrade_config_file() {
         echo "ObjectFS is disabled; skipping S3 configuration."
     fi
     
+    echo "Configuring local cache and temporary folders..."
+
+    # Define base local cache directory (e.g., /tmp/moodle)
+    LOCAL_TMP_BASE="${MOODLE_LOCAL_TMP_BASE:-/tmp/moodle}"
+
+    # Create directories if they do not exist
+    mkdir -p "${LOCAL_TMP_BASE}/localcache"
+    mkdir -p "${LOCAL_TMP_BASE}/cache"
+    mkdir -p "${LOCAL_TMP_BASE}/temp"
+
+    # Set appropriate web server permissions
+    chmod -R 777 "${LOCAL_TMP_BASE}"
+
+    # Inject directory settings into config.php
+    update_or_add_config_value "\$CFG->localcachedir" "${LOCAL_TMP_BASE}/localcache"
+    update_or_add_config_value "\$CFG->cachedir" "${LOCAL_TMP_BASE}/cache"
+    update_or_add_config_value "\$CFG->tempdir" "${LOCAL_TMP_BASE}/temp"
+
+    echo "Local temp directories configured at ${LOCAL_TMP_BASE}."
+
+
     update_or_add_config_value "\$CFG->routerconfigured" "true"
 
 
