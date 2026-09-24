@@ -44,6 +44,7 @@ services:
       MOODLE_USERNAME: admin
       MOODLE_PASSWORD: M@0dl3ing
       MOODLE_MAIL_NOREPLY_ADDRESS: noreply@host.docker.internal
+      LOCAL_TMP_ENABLED: true
       POST_CONFIGURE_COMMANDS: |
         echo 'Starting background Moodle cron loop...'
         sh -c 'while true; do php /var/www/html/admin/cli/cron.php; sleep 60; done' &

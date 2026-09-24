@@ -292,53 +292,34 @@ upgrade_config_file() {
         update_or_add_config_value "\$CFG->session_redis_serializer_use_igbinary" ""
         update_or_add_config_value "\$CFG->session_redis_auth" ""
     fi
-
-    # Inject ObjectFS S3 settings into config.php
-    if [ "${OBJECTFS_ENABLED:-false}" = "true" ]; then
-        echo "Configuring ObjectFS S3 storage..."
+ 
+    # Configuring local cache and temporary folders settings into config.php
+    if [ "${LOCAL_TMP_ENABLED:-false}" = "true" ]; then
+        echo "Configuring local cache and temporary folders..."
         
-        update_or_add_config_value "\$CFG->alternative_file_system_class" '\tool_objectfs\s3_file_system'
-        update_or_add_config_value "\$CFG->tool_objectfs_s3_bucket" "${OBJECTFS_S3_BUCKET:-your-s3-bucket}"
-        update_or_add_config_value "\$CFG->tool_objectfs_s3_region" "${OBJECTFS_S3_REGION:-sa-east-1}"
+        # Define base local cache directory (e.g., /tmp/moodle)
+        MOODLE_LOCAL_TMP_BASE="${LOCAL_TMP_BASE:-/tmp/moodle}"
         
-        if [ "${OBJECTFS_S3_USE_INSTANCE_PROFILE:-true}" = "true" ]; then
-            update_or_add_config_value "\$CFG->tool_objectfs_s3_use_instance_profile" "true"
-        else
-            update_or_add_config_value "\$CFG->tool_objectfs_s3_use_instance_profile" "false"
-        fi
-
-        if [ -n "${OBJECTFS_S3_BASE_URL:-}" ]; then
-            update_or_add_config_value "\$CFG->tool_objectfs_s3_base_url" "$OBJECTFS_S3_BASE_URL"
-        fi
+        # Create directories if they do not exist
+        mkdir -p "${MOODLE_LOCAL_TMP_BASE}/localcache"
+        mkdir -p "${MOODLE_LOCAL_TMP_BASE}/cache"
+        mkdir -p "${MOODLE_LOCAL_TMP_BASE}/temp"
+        
+        # Set appropriate web server permissions
+        chmod -R 777 "${MOODLE_LOCAL_TMP_BASE}"
+        
+        # Inject directory settings into config.php
+        update_or_add_config_value "\$CFG->localcachedir" "${MOODLE_LOCAL_TMP_BASE}/localcache"
+        update_or_add_config_value "\$CFG->cachedir" "${MOODLE_LOCAL_TMP_BASE}/cache"
+        update_or_add_config_value "\$CFG->tempdir" "${MOODLE_LOCAL_TMP_BASE}/temp"
+        
+        echo "Local temp directories configured at ${MOODLE_LOCAL_TMP_BASE}."
     else
-        echo "ObjectFS is disabled; skipping S3 configuration."
+        echo "Local temp directories are disabled; skipping configuration..."
     fi
     
-    echo "Configuring local cache and temporary folders..."
-
-    # Define base local cache directory (e.g., /tmp/moodle)
-    LOCAL_TMP_BASE="${MOODLE_LOCAL_TMP_BASE:-/tmp/moodle}"
-
-    # Create directories if they do not exist
-    mkdir -p "${LOCAL_TMP_BASE}/localcache"
-    mkdir -p "${LOCAL_TMP_BASE}/cache"
-    mkdir -p "${LOCAL_TMP_BASE}/temp"
-
-    # Set appropriate web server permissions
-    chmod -R 777 "${LOCAL_TMP_BASE}"
-
-    # Inject directory settings into config.php
-    update_or_add_config_value "\$CFG->localcachedir" "${LOCAL_TMP_BASE}/localcache"
-    update_or_add_config_value "\$CFG->cachedir" "${LOCAL_TMP_BASE}/cache"
-    update_or_add_config_value "\$CFG->tempdir" "${LOCAL_TMP_BASE}/temp"
-
-    echo "Local temp directories configured at ${LOCAL_TMP_BASE}."
-
-
     update_or_add_config_value "\$CFG->routerconfigured" "true"
-
-
-    
+       
     
 }
 
