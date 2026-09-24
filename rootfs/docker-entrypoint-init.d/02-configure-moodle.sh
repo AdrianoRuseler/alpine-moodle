@@ -293,6 +293,27 @@ upgrade_config_file() {
         update_or_add_config_value "\$CFG->session_redis_auth" ""
     fi
     
+    # Inject ObjectFS S3 settings into config.php
+    if [ "${OBJECTFS_ENABLED:-false}" = "true" ]; then
+        echo "Configuring ObjectFS S3 storage..."
+        
+        update_or_add_config_value "\$CFG->alternative_file_system_class" '\tool_objectfs\s3_file_system'
+        update_or_add_config_value "\$CFG->tool_objectfs_s3_bucket" "${OBJECTFS_S3_BUCKET:-your-s3-bucket}"
+        update_or_add_config_value "\$CFG->tool_objectfs_s3_region" "${OBJECTFS_S3_REGION:-sa-east-1}"
+        
+        if [ "${OBJECTFS_S3_USE_INSTANCE_PROFILE:-true}" = "true" ]; then
+            update_or_add_config_value "\$CFG->tool_objectfs_s3_use_instance_profile" "true"
+        else
+            update_or_add_config_value "\$CFG->tool_objectfs_s3_use_instance_profile" "false"
+        fi
+
+        if [ -n "${OBJECTFS_S3_BASE_URL:-}" ]; then
+            update_or_add_config_value "\$CFG->tool_objectfs_s3_base_url" "$OBJECTFS_S3_BASE_URL"
+        fi
+    else
+        echo "ObjectFS is disabled; skipping S3 configuration."
+    fi
+
     update_or_add_config_value "\$CFG->routerconfigured" "true"
     
     
@@ -390,8 +411,7 @@ if [ -d /var/www/html/public ]; then
     sed -i 's|root .*;|root /var/www/html/public;|' /etc/nginx/nginx.conf
     
     echo "Running composer install for Moodle 5.1+..."
-    composer install --no-dev --classmap-authoritative
-    
+    composer install --no-dev --classmap-authoritative    
 fi
 
 # Upgrade config.php file
