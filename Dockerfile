@@ -102,6 +102,7 @@ RUN set -eux; \
     rm -rf /var/www/html/.git /opt/moosh/.git; \   
     apk del .build-deps
 
+RUN mkdir -p /tmp/moodle && chown nobody:nobody /tmp/moodle
 COPY --chown=nobody rootfs/ /
 
 USER nobody
