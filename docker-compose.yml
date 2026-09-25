@@ -52,11 +52,11 @@ services:
       - 80:8080
     volumes:
       - moodledata:/var/www/moodledata
-      #- moodlehtml:/var/www/html
+      - moodletmp:/tmp/moodle
     depends_on:
       - postgres
       - redis
 volumes:
   postgres: null
   moodledata: null
- # moodlehtml: null
+  moodletmp: null
