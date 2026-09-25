@@ -45,6 +45,7 @@ services:
       MOODLE_PASSWORD: M@0dl3ing
       MOODLE_MAIL_NOREPLY_ADDRESS: noreply@host.docker.internal
       MOODLE_MAIL_PREFIX: "[moodle]"
+      LOCAL_TMP_ENABLED: true
       PRE_CONFIGURE_COMMANDS: |
         echo 'This is a pre-configure command'
       POST_CONFIGURE_COMMANDS: |
@@ -54,11 +55,11 @@ services:
       - 80:8080
     volumes:
       - moodledata:/var/www/moodledata
-      - moodlehtml:/var/www/html
+      - moodletmp:/tmp/moodle
     depends_on:
       - postgres
       - redis
 volumes:
   postgres: null
   moodledata: null
-  moodlehtml: null
+  moodletmp: null
