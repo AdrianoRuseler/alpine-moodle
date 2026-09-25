@@ -32,6 +32,16 @@ docker build \
   -t ruseler/alpine-moodle:5.2 . --no-cache
 ```
 
+- https://github.com/ProjetoSophiaDev/moodle502plugins
+
+```bash
+docker build \
+  --build-arg MOODLE_BRANCH=MOODLE_502_STABLE \
+  --build-arg MOODLE_PGLS=ProjetoSophiaDev/moodle502plugins \
+  -t ruseler/alpine-sophia:5.2 . --no-cache
+```
+
+
 - https://github.com/AdrianoRuseler/moodle501-plugins
 
 ```bash
@@ -52,6 +62,12 @@ docker build \
 
 docker compose -f docker-compose-loki.yml up -d
 
+```bash
+docker build \
+  --build-arg MOODLE_BRANCH=MOODLE_405_STABLE \
+  --build-arg MOODLE_PGLS=ProjetoSophiaDev/moodle405plugins \
+  -t ruseler/alpine-sophia:4.5 . --no-cache
+```
 
 ## Quick start
 
